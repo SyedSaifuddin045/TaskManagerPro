@@ -14,6 +14,7 @@ void Repl::printHelp()
     std::cout << "add title|desc|prio       Add a task (priority 0=LOW,1=MEDIUM,2=HIGH)\n";
     std::cout << "list                      Show all tasks\n";
     std::cout << "complete ID               Complete a task\n";
+    std::cout << "do ID                     Set a Task to be doing\n";
     std::cout << "save                      Save all tasks\n";
     std::cout << "quit                      Exit\n";
 }
@@ -52,6 +53,24 @@ void Repl::handleAdd(const std::string &cmd)
     std::cout << "Added task ID " << int(t->taskId()) << "\n";
 }
 
+const char* statusToString(TaskStatus s) {
+    switch(s) {
+    case PENDING: return "Pending";
+    case IN_PROGRESS: return "In Progress";
+    case COMPLETED: return "Completed";
+    }
+    return "Unknown";
+}
+
+const char* priorityToString(TaskPriority p) {
+    switch(p) {
+    case LOW: return "Low";
+    case MEDIUM: return "Medium";
+    case HIGH: return "High";
+    }
+    return "Unknown";
+}
+
 void Repl::handleList()
 {
     auto tasks = m_manager->tasks();
@@ -61,8 +80,9 @@ void Repl::handleList()
         std::cout
             << "ID=" << int(t->taskId())
             << " | Name=" << t->taskName().toStdString()
-            << " | Status=" << t->status()
-            << " | Priority=" << t->priority()
+            << " | Description="<<t->taskDescription().toStdString()
+            << " | Status=" << statusToString(t->status())
+            << " | Priority=" << priorityToString(t->priority())
             << "\n";
     }
 }
@@ -74,6 +94,16 @@ void Repl::handleComplete(const std::string &cmd)
 
     if (m_manager->completeTask(id))
         std::cout << "Task completed.\n";
+    else
+        std::cout << "Task not found.\n";
+}
+
+void Repl::handleDo(const std::string &cmd)
+{
+    //cmd = "do ID"
+    int id = std::stoi(cmd.substr(3));
+    if(m_manager->doTask(id))
+        std::cout << "Doing Task : "<<id;
     else
         std::cout << "Task not found.\n";
 }
@@ -105,6 +135,10 @@ void Repl::run()
         {
             m_manager->save();
             std::cout << "Tasks saved.\n";
+        }
+        else if(line.rfind("do ", 0) == 0)
+        {
+            handleDo(line);
         }
         else if (line == "quit")
         {

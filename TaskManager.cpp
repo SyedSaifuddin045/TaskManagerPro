@@ -85,6 +85,17 @@ bool TaskManager::completeTask(uint8_t id)
     return false;
 }
 
+bool TaskManager::doTask(uint8_t id)
+{
+    for (Task* const it : m_tasks) {  // Task* const
+        if (it->taskId() == id) {
+            it->setStatus(IN_PROGRESS);
+            return true;
+        }
+    }
+    return false;
+}
+
 bool TaskManager::load()
 {
     QVector<Task*> loaded;

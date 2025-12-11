@@ -17,6 +17,7 @@ private:
     void printHelp();
     void handleAdd(const std::string &cmd);
     void handleList();
+    void handleDo(const std::string &cmd);
     void handleComplete(const std::string &cmd);
 };
 

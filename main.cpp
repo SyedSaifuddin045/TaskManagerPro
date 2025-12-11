@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     QString saveFile = QCoreApplication::applicationDirPath() + "/tasks.json";
 
     // Create the TaskManager (it will own all Task objects)
-    TaskManager manager(saveFile);
+    TaskManager manager(saveFile,&app);
 
     // Create and run the REPL
     Repl repl(&manager);
