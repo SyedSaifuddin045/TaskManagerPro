@@ -1,22 +1,20 @@
-#include <QTextStream>
-#include <QString>
+#include <QCoreApplication>
+#include "Repl.h"
+#include "TaskManager.h"
 
 int main(int argc, char *argv[])
 {
-    // QCoreApplication a(argc, argv);
+    QCoreApplication app(argc, argv);
 
-    QTextStream inputStream(stdin);
-    QTextStream outputStream(stdout);
+    // Set a file path for saving/loading tasks (you can change this)
+    QString saveFile = QCoreApplication::applicationDirPath() + "/tasks.json";
 
-    QString name;
+    // Create the TaskManager (it will own all Task objects)
+    TaskManager manager(saveFile);
 
-    outputStream << "Enter your name : ";
-    outputStream.flush();
-
-    name = inputStream.readLine();
-
-    outputStream << "Hello " << name;
-    outputStream.flush();
+    // Create and run the REPL
+    Repl repl(&manager);
+    repl.run();
 
     return 0;
 }
