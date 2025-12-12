@@ -1,20 +1,24 @@
-#include <QCoreApplication>
-#include "Repl.h"
-#include "TaskManager.h"
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication app(argc, argv);
+    QGuiApplication app(argc, argv);
 
-    // Set a file path for saving/loading tasks (you can change this)
-    QString saveFile = QCoreApplication::applicationDirPath() + "/tasks.json";
+    QQmlApplicationEngine engine;
+    const QUrl url(QStringLiteral("qrc:/MyApp/Main.qml"));
 
-    // Create the TaskManager (it will own all Task objects)
-    TaskManager manager(saveFile,&app);
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
+                     &app, [url](QObject *obj, const QUrl &objUrl) {
+                         if (!obj && url == objUrl)
+                             QCoreApplication::exit(-1);
+                     }, Qt::QueuedConnection);
 
-    // Create and run the REPL
-    Repl repl(&manager);
-    repl.run();
+    engine.load(url);
 
-    return 0;
+    if (engine.rootObjects().isEmpty()) {
+        qWarning() << "QML failed to load:" << url;
+    }
+
+    return app.exec();
 }
