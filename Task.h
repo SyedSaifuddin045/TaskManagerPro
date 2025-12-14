@@ -6,6 +6,7 @@
 #include <QByteArray>
 #include <cstdint>
 
+// Enums without Q_ENUM_NS - we'll register them differently
 enum TaskStatus : uint8_t {
     PENDING,
     IN_PROGRESS,
