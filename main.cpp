@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     // Set application metadata
-    app.setOrganizationName("MyCompany");
+    app.setOrganizationName("SyedSaifuddin045");
     app.setApplicationName("TaskManager");
 
     // Determine save file path

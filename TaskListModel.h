@@ -33,6 +33,7 @@ public:
     Q_INVOKABLE void removeTask(int taskId);
     Q_INVOKABLE void completeTask(int taskId);
     Q_INVOKABLE void startTask(int taskId);
+    Q_INVOKABLE void resetTask(int taskId);
     Q_INVOKABLE void saveToFile();
     Q_INVOKABLE void loadFromFile();
     Q_INVOKABLE QString priorityToString(int priority) const;

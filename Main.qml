@@ -6,8 +6,8 @@ import QtQuick.Effects
 ApplicationWindow {
     id: root
     visible: true
-    width: 1000
-    height: 700
+    width: 1920
+    height: 1080
     title: "Task Manager Pro"
 
     // Futuristic color scheme
@@ -23,11 +23,7 @@ ApplicationWindow {
     readonly property color warningOrange: "#ff8c00"
     readonly property color dangerRed: "#ff3366"
 
-    Component.onCompleted: {
-        console.log("Loading tasks from file...")
-        taskModel.loadFromFile()
-        console.log("Tasks loaded, count:", taskModel.count)
-    }
+    property bool isKanbanView: false
 
     Component.onDestruction: {
         console.log("Saving tasks...")
@@ -136,6 +132,50 @@ ApplicationWindow {
 
             Item { Layout.fillWidth: true }
 
+            Row {
+                spacing: 10
+                Layout.alignment: Qt.AlignVCenter
+
+                Label {
+                    text: "VIEW:"
+                    font.bold: true
+                    font.pixelSize: 12
+                    font.letterSpacing: 1.5
+                    color: textSecondary
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                Button {
+                    text: isKanbanView ? "\uf0ce" : "\uf03a"
+                    font.pixelSize: 12
+                    font.bold: true
+                    width: 120
+                    height: 36
+
+                    background: Rectangle {
+                        radius: 8
+                        color: bgCard
+                        border.width: 1
+                        border.color: accentPurple
+                        opacity: parent.hovered ? 1 : 0.7
+
+                        Behavior on opacity { NumberAnimation { duration: 200 } }
+                    }
+
+                    contentItem: Text {
+                        text: parent.text
+                        font: parent.font
+                        color: accentPurple
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    onClicked: {
+                        isKanbanView = !isKanbanView
+                    }
+                }
+            }
+
             // Stats panel
             Row {
                 spacing: 30
@@ -204,7 +244,7 @@ ApplicationWindow {
         anchors.margins: 20
         spacing: 20
 
-        // Filter bar
+        // Filter bar (keep it exactly as you have it)
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 60
@@ -226,9 +266,7 @@ ApplicationWindow {
                     color: textSecondary
                 }
 
-                ButtonGroup {
-                    id: filterGroup
-                }
+                ButtonGroup { id: filterGroup }
 
                 Repeater {
                     model: [
@@ -249,37 +287,17 @@ ApplicationWindow {
 
                 Item { Layout.fillWidth: true }
 
-                // Sort button
                 Button {
                     text: sortAscending ? "🔽 PRIORITY" : "🔼 PRIORITY"
                     font.pixelSize: 12
                     font.bold: true
-
                     property bool sortAscending: false
-
-                    background: Rectangle {
-                        radius: 8
-                        color: bgCard
-                        border.width: 1
-                        border.color: accentCyan
-                        opacity: parent.hovered ? 1 : 0.7
-
-                        Behavior on opacity { NumberAnimation { duration: 200 } }
-                    }
-
-                    contentItem: Text {
-                        text: parent.text
-                        font: parent.font
-                        color: accentCyan
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
-
+                    background: Rectangle { radius: 8; color: bgCard; border.width: 1; border.color: accentCyan; opacity: parent.hovered ? 1 : 0.7; Behavior on opacity { NumberAnimation { duration: 200 } } }
+                    contentItem: Text { text: parent.text; font: parent.font; color: accentCyan; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
                     onClicked: {
                         sortAscending = !sortAscending
                         taskModel.sortByPriority(sortAscending)
-                        sortNotification.notificationText = sortAscending ?
-                            "Sorted: Low → High" : "Sorted: High → Low"
+                        sortNotification.notificationText = sortAscending ? "Sorted: Low → High" : "Sorted: High → Low"
                         sortNotification.show()
                     }
                 }
@@ -288,59 +306,36 @@ ApplicationWindow {
                     text: "💾 SAVE"
                     font.pixelSize: 12
                     font.bold: true
-
-                    background: Rectangle {
-                        radius: 8
-                        color: bgCard
-                        border.width: 1
-                        border.color: accentPurple
-                        opacity: parent.hovered ? 1 : 0.7
-
-                        Behavior on opacity { NumberAnimation { duration: 200 } }
-                    }
-
-                    contentItem: Text {
-                        text: parent.text
-                        font: parent.font
-                        color: accentPurple
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
-
-                    onClicked: {
-                        taskModel.saveToFile()
-                        saveNotification.show()
-                    }
+                    background: Rectangle { radius: 8; color: bgCard; border.width: 1; border.color: accentPurple; opacity: parent.hovered ? 1 : 0.7; Behavior on opacity { NumberAnimation { duration: 200 } } }
+                    contentItem: Text { text: parent.text; font: parent.font; color: accentPurple; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                    onClicked: { taskModel.saveToFile(); saveNotification.show() }
                 }
             }
         }
 
-        // Task list with proper scrolling
+        // NEW: View area that switches between List and Kanban
         Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
             color: "transparent"
             radius: 12
+            clip: true
 
+            // List View (your original view)
             ListView {
                 id: taskListView
                 anchors.fill: parent
+                visible: !isKanbanView
                 spacing: 12
                 clip: true
-
                 property int currentFilter: -1
-
                 model: taskModel
 
                 ScrollBar.vertical: ScrollBar {
                     policy: ScrollBar.AsNeeded
-
                     contentItem: Rectangle {
-                        implicitWidth: 6
-                        radius: 3
-                        color: accentCyan
+                        implicitWidth: 6; radius: 3; color: accentCyan
                         opacity: parent.pressed ? 0.8 : parent.hovered ? 0.5 : 0.3
-
                         Behavior on opacity { NumberAnimation { duration: 200 } }
                     }
                 }
@@ -416,7 +411,7 @@ ApplicationWindow {
                             anchors.leftMargin: 30
                             spacing: 20
 
-                            // Status indicator
+                            // Status indicator (FIXED)
                             Rectangle {
                                 Layout.alignment: Qt.AlignVCenter
                                 width: 50
@@ -424,13 +419,18 @@ ApplicationWindow {
                                 radius: 25
                                 color: Qt.rgba(0, 0, 0, 0.4)
                                 border.width: 3
-                                border.color: isCompleted ? successGreen :
-                                              taskStatus === 1 ? warningOrange : accentCyan
+                                border.color: {
+                                    if (isCompleted) return successGreen
+                                    if (taskStatus === 1) return warningOrange
+                                    return accentCyan
+                                }
 
+                                // Safe shadow: use explicit color instead of binding to parent.border.color
                                 layer.enabled: true
                                 layer.effect: MultiEffect {
                                     shadowEnabled: true
-                                    shadowColor: parent.border.color
+                                    shadowColor: isCompleted ? successGreen :
+                                                  taskStatus === 1 ? warningOrange : accentCyan
                                     shadowBlur: 0.6
                                 }
 
@@ -440,7 +440,8 @@ ApplicationWindow {
                                     text: isCompleted ? "✓" : taskStatus === 1 ? "◐" : "○"
                                     font.pixelSize: 24
                                     font.bold: true
-                                    color: parent.border.color
+                                    color: isCompleted ? successGreen :
+                                           taskStatus === 1 ? warningOrange : accentCyan
                                 }
                             }
 
@@ -549,7 +550,6 @@ ApplicationWindow {
                     }
                 }
 
-                // Empty state
                 Label {
                     anchors.centerIn: parent
                     visible: taskListView.count === 0
@@ -557,6 +557,20 @@ ApplicationWindow {
                     font.pixelSize: 18
                     color: textSecondary
                     horizontalAlignment: Text.AlignHCenter
+                }
+            }
+
+            // Kanban View (from the separate file)
+            KanbanView {
+                anchors.fill: parent
+                visible: isKanbanView
+                kanbanTaskModel: taskModel
+
+                // Connect the delete signal to your dialog
+                onDeleteTaskRequested: (taskId, taskName) => {
+                    deleteConfirmDialog.taskIdToDelete = taskId
+                    deleteConfirmDialog.taskNameToDelete = taskName
+                    deleteConfirmDialog.open()
                 }
             }
         }
@@ -1108,10 +1122,10 @@ ApplicationWindow {
 
     // Custom components
     component StatCard: Rectangle {
-        property string label
-        property int value
-        property string iconText
-        property color glowColor
+        property string label: ""
+        property int value: 0
+        property string iconText: ""
+        property color glowColor: accentCyan  // Default to prevent undefined
 
         width: 100
         height: 60
@@ -1128,7 +1142,7 @@ ApplicationWindow {
                 text: iconText + " " + value
                 font.pixelSize: 24
                 font.bold: true
-                color: glowColor
+                color: glowColor  // Direct reference is now safe
                 Layout.alignment: Qt.AlignHCenter
             }
 
@@ -1139,6 +1153,14 @@ ApplicationWindow {
                 color: textSecondary
                 Layout.alignment: Qt.AlignHCenter
             }
+        }
+
+        // Move the layer.effect here and use a conditional to avoid undefined
+        layer.enabled: glowColor !== undefined  // Fallback if still undefined (rare)
+        layer.effect: MultiEffect {
+            shadowEnabled: true
+            shadowColor: glowColor
+            shadowBlur: 0.5
         }
     }
 

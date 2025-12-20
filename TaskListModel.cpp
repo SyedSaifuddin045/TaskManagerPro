@@ -124,6 +124,22 @@ void TaskListModel::startTask(int taskId)
     }
 }
 
+void TaskListModel::resetTask(int taskId)
+{
+    qDebug() << "TaskListModel: Resetting task with ID:" << taskId;
+
+    if (m_manager->resetTask(static_cast<uint8_t>(taskId))) {
+        // Find the row of the task to emit dataChanged
+        int row = findRowByTaskId(static_cast<uint8_t>(taskId));
+        if (row >= 0) {
+            QModelIndex idx = index(row);
+            emit dataChanged(idx, idx, {TaskStatusRole, TaskCompletedTimeRole, TaskIsCompletedRole});
+            qDebug() << "TaskListModel: Task reset to Pending, UI updated";
+        }
+    } else {
+        qDebug() << "TaskListModel: Failed to reset task with ID:" << taskId;
+    }
+}
 void TaskListModel::saveToFile()
 {
     m_manager->save();

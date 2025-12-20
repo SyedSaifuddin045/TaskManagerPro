@@ -50,6 +50,17 @@ bool TaskManager::removeTask(uint8_t id)
     return true;
 }
 
+bool TaskManager::resetTask(uint8_t id)
+{
+    for (Task* const it : m_tasks) {  // Task* const
+        if (it->taskId() == id) {
+            it->setStatus(PENDING);
+            return true;
+        }
+    }
+    return false;
+}
+
 Task* TaskManager::getTaskById(uint8_t id) const
 {
     for (Task* const task : m_tasks) {  // Task* const avoids detach

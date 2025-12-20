@@ -29,6 +29,7 @@ qt_add_qml_module(MyFirstApp
     VERSION 1.0
     QML_FILES
         Main.qml
+        QML_FILES KanbanView.qml
 )
 
 target_link_libraries(MyFirstApp PRIVATE

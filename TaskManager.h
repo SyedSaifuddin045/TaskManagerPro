@@ -24,6 +24,8 @@ public:
 
     bool doTask(uint8_t id);
 
+    bool resetTask(uint8_t taskId);
+
     // Get task by ID (for updating or inspection)
     Task* getTaskById(uint8_t id) const;
 
